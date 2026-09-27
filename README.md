@@ -5,6 +5,11 @@ An [MCP (Model Context Protocol)](https://modelcontextprotocol.io) server that r
 (`UT2004MCP.MutMCP`). Load the mutator and AI agents can query and control the running game
 over the network - no game client / player slot required.
 
+The repository also contains the start of **UnrealEd automation**. Its external Windows
+helper drives the editor's bottom-bar Command control without screen coordinates. A
+prebuilt 64-bit `unrealed-send.exe` is included, but the helper is not yet an MCP server:
+the local stdio MCP wrapper and editor tool schemas still need to be added.
+
 The mutator binds its own TCP port and speaks MCP over HTTP, so any MCP-capable agent
 (Claude Code, Claude Desktop, VS Code, Cursor, ...) can connect and use the tools below.
 
@@ -155,4 +160,33 @@ UT2004MCP/
     MCPJson.uc        JSON build/escape + request field extraction
     MCPPlayerLink.uc  per-player client link (client-side GUI actions)
   Agents/         ready-to-use MCP client configs + guide
+  Editor/
+    bridge/
+      unrealed-send.c  Win32 helper for sending one UnrealEd command
+      unrealed-send.exe  prebuilt 64-bit Windows helper
+      build.sh         MinGW build script
 ```
+
+## UnrealEd command bridge
+
+A prebuilt 64-bit helper is included. To rebuild it on Linux with MinGW:
+
+```bash
+cd Editor/bridge
+./build.sh
+```
+
+With UnrealEd running under Wine, use the same Wine prefix:
+
+```bash
+wine Editor/bridge/unrealed-send.exe "OBJ LIST CLASS=LEVEL"
+```
+
+The helper finds `UnrealEd.exe`, locates the bottom-bar **Command** edit control, focuses
+it and delivers the command with Win32 `SendInput`. Open **View > Log** in UnrealEd to
+read the immediate result. The visible console can update before `System/UnrealEd.log`
+is flushed.
+
+The bridge briefly brings UnrealEd to the foreground. A zero exit code means the input
+was delivered; verify the editor output or requested persistent change before treating
+the command as successful.

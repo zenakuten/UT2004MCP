@@ -3,6 +3,10 @@
 The `UT2004MCP` mutator (`UT2004MCP.MutMCP`) runs an **MCP (Model Context Protocol) server**
 inside a running UT2004 server, so AI agents can query and control the game.
 
+These configs currently register only the in-game server. The repository's
+prebuilt `Editor/bridge/unrealed-send.exe` helper is not yet an MCP server and must not
+be added to client MCP configuration until the local stdio wrapper exists.
+
 - **Transport:** Streamable HTTP (plain JSON responses, stateless)
 - **Endpoint:** `http://<server-host>:6900/mcp`
 - **Port:** `6900` by default - configurable via `ListenPort` in `MCP.ini`
